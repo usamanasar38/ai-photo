@@ -11,11 +11,64 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  clerkId   String   @unique
-  email     String   @unique
-  name      String?
+  id             String   @id @default(uuid())
+  clerkId        String   @unique
+  email          String   @unique
+  name           String?
   profilePicture String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum ModelTrainingStatusEnum {
+  Pending
+  Generated
+  Failed
+}
+
+enum ModelTypeEnum {
+  Man
+  Woman
+  Others
+}
+
+enum EthnicityEnum {
+  White
+  Black
+  Asian_American   @map("Asian American")
+  East_Asian       @map("East Asian")
+  South_East_Asian @map("South East Asian")
+  South_Asian      @map("South Asian")
+  Middle_Eastern   @map("Middle Eastern")
+  Pacific
+  Hispanic
+}
+
+enum EyeColorEnum {
+  Brown
+  Blue
+  Hazel
+  Gray
+}
+
+model Model {
+  id             String                  @id @default(uuid())
+  name           String
+  type           ModelTypeEnum
+  age            Int
+  ethnicity      EthnicityEnum
+  eyeColor       EyeColorEnum
+  bald           Boolean
+  userId         String
+  triggerWord    String?
+  tensorPath     String?
+  thumbnail      String?
+  trainingStatus ModelTrainingStatusEnum @default(Pending)
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  aiRequestId    String?
+  zipUrl         String
+  open           Boolean                 @default(false)
+
+  @@index([aiRequestId])
 }

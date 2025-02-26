@@ -14,5 +14,18 @@ export class AiService {
       data.zipUrl,
       data.name,
     );
+    const modelCreated = await this.prismaService.model.create({
+        data: {
+          name: data.name,
+          type: data.type,
+          age: data.age,
+          ethinicity: data.ethinicity,
+          eyeColor: data.eyeColor,
+          bald: data.bald,
+          userId: userId,
+          zipUrl: data.zipUrl,
+          falAiRequestId: request_id,
+        },
+      });
   }
 }

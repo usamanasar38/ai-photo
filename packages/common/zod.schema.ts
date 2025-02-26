@@ -9,7 +9,7 @@ export const TrainModel = z.object({
   name: z.string(),
   type: z.enum(GENDER_TYPE_ARRAY),
   age: z.number(),
-  ethinicity: z.enum(ETHNICITY_ARRAY),
+  ethnicity: z.enum(ETHNICITY_ARRAY),
   eyeColor: z.enum(EYE_COLOR_ARRAY),
   bald: z.boolean(),
   zipUrl: z.string(),

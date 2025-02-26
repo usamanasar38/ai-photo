@@ -10,22 +10,25 @@ export class AiService {
   constructor(private prismaService: PrismaService) {}
 
   public async trainModel(data: TrainModelInput, userId: string) {
-    const { requestId, responseUrl } = await this.falAiModel.trainModel(
+    const { requestId } = await this.falAiModel.trainModel(
       data.zipUrl,
       data.name,
     );
+
     const modelCreated = await this.prismaService.model.create({
-        data: {
-          name: data.name,
-          type: data.type,
-          age: data.age,
-          ethinicity: data.ethinicity,
-          eyeColor: data.eyeColor,
-          bald: data.bald,
-          userId: userId,
-          zipUrl: data.zipUrl,
-          falAiRequestId: request_id,
-        },
-      });
+      data: {
+        name: data.name,
+        type: data.type,
+        age: data.age,
+        ethnicity: data.ethnicity,
+        eyeColor: data.eyeColor,
+        bald: data.bald,
+        userId: userId,
+        zipUrl: data.zipUrl,
+        aiRequestId: requestId,
+      },
+    });
+
+    return modelCreated.id;
   }
 }

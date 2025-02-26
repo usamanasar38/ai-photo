@@ -9,7 +9,9 @@ export class AiController {
 
   @Post('train')
   @UsePipes(new ZodValidationPipe(TrainModel))
-  trainModel(@Body() data: TrainModelInput) {}
+  trainModel(@Body() data: TrainModelInput) {
+    return this.aiService.trainModel(data, '');
+  }
 
   @Post('generate')
   @UsePipes(new ZodValidationPipe(GenerateImage))

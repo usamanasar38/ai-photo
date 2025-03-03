@@ -1,7 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FalAIModel } from './models/fal-ai.model';
-import { type TrainModelInput } from '@repo/common/inferred-types';
+import {
+  type TrainModelInput,
+  type GenerateImageInput,
+} from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
+import { type Response } from '@repo/common/types';
 
 @Injectable()
 export class AiService {
@@ -9,7 +13,10 @@ export class AiService {
 
   constructor(private prismaService: PrismaService) {}
 
-  public async trainModel(data: TrainModelInput, userId: string) {
+  public async trainModel(
+    data: TrainModelInput,
+    userId: string,
+  ): Promise<Response<string>> {
     const { requestId } = await this.falAiModel.trainModel(
       data.zipUrl,
       data.name,
@@ -29,6 +36,25 @@ export class AiService {
       },
     });
 
-    return modelCreated.id;
+    return { data: modelCreated.id };
+  }
+
+  public async generateImage(body: GenerateImageInput, userId: string) {
+    const model = await this.prismaService.model.findUnique({
+      where: {
+        id: body.modelId,
+      },
+    });
+
+    if (!model || !model.tensorPath) {
+      throw new NotFoundException('Model not found');
+    }
+
+    const { requestId } = await this.falAiModel.generateImage(
+      body.prompt,
+      model.tensorPath,
+    );
+
+    return requestId;
   }
 }

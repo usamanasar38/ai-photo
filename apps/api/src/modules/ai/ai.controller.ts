@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
+import { Response } from '@repo/common/types';
 import {
   type GenerateImageInput,
   type TrainModelInput,
@@ -13,11 +14,13 @@ export class AiController {
 
   @Post('train')
   @UsePipes(new ZodValidationPipe(TrainModel))
-  trainModel(@Body() data: TrainModelInput) {
-    return this.aiService.trainModel(data, '');
+  trainModel(@Body() body: TrainModelInput): Promise<Response<string>> {
+    return this.aiService.trainModel(body, '');
   }
 
   @Post('generate')
   @UsePipes(new ZodValidationPipe(GenerateImage))
-  generateImage(@Body() data: GenerateImageInput) {}
+  generateImage(@Body() body: GenerateImageInput) {
+    return this.aiService.generateImage(body, '');
+  }
 }

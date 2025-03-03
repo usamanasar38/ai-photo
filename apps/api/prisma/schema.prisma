@@ -64,11 +64,32 @@ model Model {
   tensorPath     String?
   thumbnail      String?
   trainingStatus ModelTrainingStatusEnum @default(Pending)
+  outputImages    OutputImages[]
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @updatedAt
   aiRequestId    String?
   zipUrl         String
   open           Boolean                 @default(false)
 
+  @@index([aiRequestId])
+}
+
+enum OutputImageStatusEnum {
+  Pending
+  Generated
+  Failed
+}
+
+model OutputImages {
+  id        String  @id   @default(uuid())
+  imageUrl  String  @default("")
+  modelId   String
+  userId    String
+  prompt    String
+  aiRequestId    String?
+  status    OutputImageStatusEnum   @default(Pending)
+  model     Model   @relation(fields: [modelId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   @@index([aiRequestId])
 }

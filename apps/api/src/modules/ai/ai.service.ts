@@ -55,6 +55,16 @@ export class AiService {
       model.tensorPath,
     );
 
-    return requestId;
+    const data = await this.prismaService.outputImages.create({
+      data: {
+        prompt: body.prompt,
+        userId: userId,
+        modelId: body.modelId,
+        imageUrl: '',
+        aiRequestId: requestId,
+      },
+    });
+
+    return data.id;
   }
 }

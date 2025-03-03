@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 
-import { Page } from './shared.types';
+import { Page } from '@repo/common/types';
 
 interface CountableCollection {
   count(parameters: { skip: number; take: number }): Promise<number>;

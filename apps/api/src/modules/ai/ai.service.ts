@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FalAIModel } from './models/fal-ai.model';
-import { TrainModelInput } from '@repo/common';
+import { type TrainModelInput } from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()

@@ -1,5 +1,9 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
-import { GenerateImage, GenerateImageInput, TrainModel, TrainModelInput } from '@repo/common';
+import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
+import {
+  type GenerateImageInput,
+  type TrainModelInput,
+} from '@repo/common/inferred-types';
 import { AiService } from './ai.service';
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe';
 

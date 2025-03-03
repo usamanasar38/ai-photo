@@ -3,6 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "exports": {
+    ".": "./index.ts",
     "./constants": "./constants.ts",
     "./types": "./types.ts",
     "./zod-schema": "./zod.schema.ts",

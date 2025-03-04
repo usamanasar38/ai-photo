@@ -1,5 +1,28 @@
 {
   "name": "@repo/common",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm build --watch",
+    "build": "tsc -b -v",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\""
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist/**"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "src/*"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -13,12 +36,12 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "^22.13.4"
+    "@types/node": "^22.13.4",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2"
   },
   "peerDependencies": {
-    "typescript": "^5.7.3"
-  },
-  "dependencies": {
+    "typescript": "^5.7.3",
     "zod": "^3.24.2"
   }
 }

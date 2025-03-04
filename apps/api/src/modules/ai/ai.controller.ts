@@ -1,13 +1,13 @@
-import { Body, Controller, Get, Post, Req, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Post, UsePipes } from '@nestjs/common';
 import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
-import { Page, Response } from '@repo/common/types';
+import { type Response } from '@repo/common/types';
 import {
   type GenerateImageInput,
   type TrainModelInput,
 } from '@repo/common/inferred-types';
 import { AiService } from './ai.service';
 import { ZodValidationPipe } from '../../pipes/zod-validation-pipe';
-import { PaginationPage } from '../../shared/pagination';
+import { Model } from '@prisma/client';
 
 @Controller('ai')
 export class AiController {
@@ -20,11 +20,8 @@ export class AiController {
   }
 
   @Get('models')
-  getModels(@Req() request: Request, @PaginationPage() page: Page) {
-    // return {
-    //   data: data.map(omitShard),
-    //   links: { next: nextLink({ nextPage, request }) },
-    // };
+  getModels(): Promise<Response<Model[]>> {
+    return this.aiService.getModels({ userId: '' });
   }
 
   @Post('generate')

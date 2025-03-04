@@ -12,6 +12,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { Page, PaginatedData, type Response } from '@repo/common/types';
 import { IMAGE_GEN_CREDITS } from 'src/shared/constants';
+import { getNextPage, queryParameters } from 'src/shared/pagination';
+import { Model } from '@prisma/client';
 
 @Injectable()
 export class AiService {
@@ -49,13 +51,17 @@ export class AiService {
   }
 
   public async getModels({
-    page,
     userId,
   }: {
-    page: Page;
     userId: string;
-  }): Promise<PaginatedData<string>> {
-    return '';
+  }): Promise<Response<Model[]>> {
+    const models = await this.prismaService.model.findMany({
+      where: {
+        OR: [{ userId }, { open: true }],
+      },
+    });
+
+    return { data: models };
   }
 
   public async generateImage({
@@ -64,7 +70,7 @@ export class AiService {
   }: {
     body: GenerateImageInput;
     userId: string;
-  }) {
+  }): Promise<Response<string>> {
     const model = await this.prismaService.model.findUnique({
       where: {
         id: body.modelId,
@@ -110,6 +116,6 @@ export class AiService {
       },
     });
 
-    return data.id;
+    return { data: data.id };
   }
 }

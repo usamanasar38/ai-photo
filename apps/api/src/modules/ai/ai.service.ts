@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { FalAIModel } from './models/fal-ai.model';
@@ -117,5 +118,43 @@ export class AiService {
     });
 
     return { data: data.id };
+  }
+
+  public async getModelStatus({
+    modelId,
+    userId,
+  }: {
+    modelId: string;
+    userId: string;
+  }) {
+    try {
+      const model = await this.prismaService.model.findUnique({
+        where: {
+          id: modelId,
+          userId: userId,
+        },
+      });
+
+      if (!model) {
+        throw new NotFoundException('Model not found');
+      }
+
+      // Return basic model info with status
+      return {
+        success: true,
+        model: {
+          id: model.id,
+          name: model.name,
+          status: model.trainingStatus,
+          thumbnail: model.thumbnail,
+          createdAt: model.createdAt,
+          updatedAt: model.updatedAt,
+        },
+      };
+      return;
+    } catch (error) {
+      console.error('Error checking model status:', error);
+      throw new InternalServerErrorException('Failed to check model status');
+    }
   }
 }

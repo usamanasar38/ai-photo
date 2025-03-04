@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UsePipes } from '@nestjs/common';
 import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
 import { type Response } from '@repo/common/types';
 import {
@@ -28,5 +28,12 @@ export class AiController {
   @UsePipes(new ZodValidationPipe(GenerateImage))
   generateImage(@Body() body: GenerateImageInput) {
     return this.aiService.generateImage({ body, userId: '' });
+  }
+
+  @Get('/model/status/:modelId')
+  getModelStatus(
+    @Param('modelId') modelId: string
+  ) {
+    return this.aiService.getModelStatus({ modelId, userId: '' });
   }
 }

@@ -1,11 +1,16 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FalAIModel } from './models/fal-ai.model';
 import {
   type TrainModelInput,
   type GenerateImageInput,
 } from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
-import { type Response } from '@repo/common/types';
+import { Page, PaginatedData, type Response } from '@repo/common/types';
 import { IMAGE_GEN_CREDITS } from 'src/shared/constants';
 
 @Injectable()
@@ -14,25 +19,28 @@ export class AiService {
 
   constructor(private prismaService: PrismaService) {}
 
-  public async trainModel(
-    data: TrainModelInput,
-    userId: string,
-  ): Promise<Response<string>> {
+  public async trainModel({
+    body,
+    userId,
+  }: {
+    body: TrainModelInput;
+    userId: string;
+  }): Promise<Response<string>> {
     const { requestId } = await this.falAiModel.trainModel(
-      data.zipUrl,
-      data.name,
+      body.zipUrl,
+      body.name,
     );
 
     const modelCreated = await this.prismaService.model.create({
       data: {
-        name: data.name,
-        type: data.type,
-        age: data.age,
-        ethnicity: data.ethnicity,
-        eyeColor: data.eyeColor,
-        bald: data.bald,
+        name: body.name,
+        type: body.type,
+        age: body.age,
+        ethnicity: body.ethnicity,
+        eyeColor: body.eyeColor,
+        bald: body.bald,
         userId: userId,
-        zipUrl: data.zipUrl,
+        zipUrl: body.zipUrl,
         aiRequestId: requestId,
       },
     });
@@ -40,7 +48,23 @@ export class AiService {
     return { data: modelCreated.id };
   }
 
-  public async generateImage(body: GenerateImageInput, userId: string) {
+  public async getModels({
+    page,
+    userId,
+  }: {
+    page: Page;
+    userId: string;
+  }): Promise<PaginatedData<string>> {
+    return '';
+  }
+
+  public async generateImage({
+    body,
+    userId,
+  }: {
+    body: GenerateImageInput;
+    userId: string;
+  }) {
     const model = await this.prismaService.model.findUnique({
       where: {
         id: body.modelId,
@@ -52,15 +76,15 @@ export class AiService {
     }
 
     // check if the user has enough credits
-  const credits = await this.prismaService.userCredit.findUnique({
-    where: {
-      userId: userId,
-    },
-  });
+    const credits = await this.prismaService.userCredit.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
 
-  if ((credits?.amount ?? 0) < IMAGE_GEN_CREDITS) {
-    throw new HttpException("Not enough credits", HttpStatus.LENGTH_REQUIRED)
-  }
+    if ((credits?.amount ?? 0) < IMAGE_GEN_CREDITS) {
+      throw new HttpException('Not enough credits', HttpStatus.LENGTH_REQUIRED);
+    }
 
     const { requestId } = await this.falAiModel.generateImage(
       body.prompt,

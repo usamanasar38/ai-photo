@@ -6,7 +6,7 @@ import {
   type TrainModelInput,
 } from '@repo/common/inferred-types';
 import { AiService } from './ai.service';
-import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe';
+import { ZodValidationPipe } from '../../pipes/zod-validation-pipe';
 
 @Controller('ai')
 export class AiController {

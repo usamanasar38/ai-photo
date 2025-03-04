@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { FalAIModel } from './models/fal-ai.model';
 import {
   type TrainModelInput,
@@ -6,6 +6,7 @@ import {
 } from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
 import { type Response } from '@repo/common/types';
+import { IMAGE_GEN_CREDITS } from 'src/shared/constants';
 
 @Injectable()
 export class AiService {
@@ -50,6 +51,17 @@ export class AiService {
       throw new NotFoundException('Model not found');
     }
 
+    // check if the user has enough credits
+  const credits = await this.prismaService.userCredit.findUnique({
+    where: {
+      userId: userId,
+    },
+  });
+
+  if ((credits?.amount ?? 0) < IMAGE_GEN_CREDITS) {
+    throw new HttpException("Not enough credits", HttpStatus.LENGTH_REQUIRED)
+  }
+
     const { requestId } = await this.falAiModel.generateImage(
       body.prompt,
       model.tensorPath,
@@ -62,6 +74,15 @@ export class AiService {
         modelId: body.modelId,
         imageUrl: '',
         aiRequestId: requestId,
+      },
+    });
+
+    await this.prismaService.userCredit.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        amount: { decrement: IMAGE_GEN_CREDITS },
       },
     });
 

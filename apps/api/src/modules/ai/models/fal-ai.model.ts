@@ -48,4 +48,10 @@ export class FalAIModel extends BaseModel {
       imageUrl: response.data.images[0].url,
     };
   }
+
+  public getRequestResultFromQueue(requestId: string) {
+    return fal.queue.result(this.imageGenerationModel, {
+      requestId,
+    })
+  };
 }

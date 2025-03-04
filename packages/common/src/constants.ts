@@ -52,4 +52,4 @@ export const MODEL_STATUS = {
   PENDING: "Pending",
   GENERATED: "Generated",
   FAILED: "Failed",
-};
+} as const;

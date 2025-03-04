@@ -39,6 +39,10 @@ export class AiController {
 
   // Webhooks
   @Post('/fal-ai/webhook/image')
+  handleFalAiImageTrainWebhook(@Body() body: FalAiWebHookResponse) {
+    return this.aiService.handleFalAiImageTrainWebhook(body)
+  }
+  @Post('/fal-ai/webhook/image')
   handleFalAiImageGenerateWebhook(@Body() body: FalAiWebHookResponse) {
     return this.aiService.handleFalAiImageGenerateWebhook(body)
   }

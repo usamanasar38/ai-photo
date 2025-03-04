@@ -11,9 +11,10 @@ import {
   type GenerateImageInput,
 } from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
-import { type FalAiWebHookResponse, type Response } from '@repo/common/types';
-import { IMAGE_GEN_CREDITS } from 'src/shared/constants';
+import { type ModelStatusResponse, type FalAiWebHookResponse, type Response } from '@repo/common/types';
+import { IMAGE_GEN_CREDITS, TRAIN_MODEL_CREDITS } from '../../shared/constants';
 import { Model } from '@prisma/client';
+import { MODEL_STATUS } from '@repo/common/constants';
 
 @Injectable()
 export class AiService {
@@ -125,7 +126,7 @@ export class AiService {
   }: {
     modelId: string;
     userId: string;
-  }) {
+  }): Promise<Response<ModelStatusResponse>> {
     try {
       const model = await this.prismaService.model.findUnique({
         where: {
@@ -140,8 +141,7 @@ export class AiService {
 
       // Return basic model info with status
       return {
-        success: true,
-        model: {
+        data: {
           id: model.id,
           name: model.name,
           status: model.trainingStatus,
@@ -150,10 +150,84 @@ export class AiService {
           updatedAt: model.updatedAt,
         },
       };
-      return;
     } catch (error) {
       console.error('Error checking model status:', error);
       throw new InternalServerErrorException('Failed to check model status');
+    }
+  }
+
+  public async handleFalAiImageTrainWebhook(body: FalAiWebHookResponse): Promise<{
+    message: string,
+  }> {
+    try {
+      const requestId = body.request_id as string;
+
+      // First find the model to get the userId
+      const model = await this.prismaService.model.findFirst({
+        where: {
+          aiRequestId: requestId,
+        },
+      });
+
+      if (!model) {
+        console.error('No model found for requestId:', requestId);
+        throw new NotFoundException('Model not found');
+      }
+
+      const result = await this.falAiModel.getRequestResultFromQueue(requestId);
+
+      // check if the user has enough credits
+      const credits = await this.prismaService.userCredit.findUnique({
+        where: {
+          userId: model.userId,
+        },
+      });
+
+      if ((credits?.amount ?? 0) < TRAIN_MODEL_CREDITS) {
+        console.error('Not enough credits for user:', model.userId);
+        throw new HttpException('Not enough credits', 411);
+      }
+
+      // Use type assertion to bypass TypeScript type checking
+      const resultData = result.data as any;
+      const loraUrl = resultData.diffusers_lora_file.url;
+
+      const { imageUrl } =
+        await this.falAiModel.generateThumbnailImage(loraUrl);
+
+      console.log('Generated preview image:', imageUrl);
+
+      await this.prismaService.model.updateMany({
+        where: {
+          aiRequestId: requestId,
+        },
+        data: {
+          trainingStatus: MODEL_STATUS.GENERATED,
+          tensorPath: loraUrl,
+          thumbnail: imageUrl,
+        },
+      });
+
+      await this.prismaService.userCredit.update({
+        where: {
+          userId: model.userId,
+        },
+        data: {
+          amount: { decrement: TRAIN_MODEL_CREDITS },
+        },
+      });
+
+      console.log(
+        'Updated model and decremented credits for user:',
+        model.userId,
+      );
+
+      return {
+        message: 'Webhook processed successfully',
+      };
+    } catch (error) {
+      console.error('Error processing webhook:', error);
+      throw new InternalServerErrorException('Error processing webhook');
     }
   }
 

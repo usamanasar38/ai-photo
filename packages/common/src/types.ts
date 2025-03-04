@@ -17,6 +17,15 @@ export interface PaginatedResponse<T> {
   links: { next?: string };
 }
 
+export interface ModelStatusResponse {
+  id: string,
+  name: string,
+  status: 'Pending' | 'Generated' | 'Failed',
+  thumbnail: string | null,
+  createdAt: Date,
+  updatedAt: Date,
+}
+
 export interface FalAiWebhookPayload {
   images: [
     {

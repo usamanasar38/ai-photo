@@ -20,6 +20,16 @@ model User {
   updatedAt      DateTime @updatedAt
 }
 
+model UserCredit {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  amount    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
 enum ModelTrainingStatusEnum {
   Pending
   Generated

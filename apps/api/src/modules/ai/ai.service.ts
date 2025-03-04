@@ -11,9 +11,8 @@ import {
   type GenerateImageInput,
 } from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
-import { Page, PaginatedData, type Response } from '@repo/common/types';
+import { type FalAiWebHookResponse, type Response } from '@repo/common/types';
 import { IMAGE_GEN_CREDITS } from 'src/shared/constants';
-import { getNextPage, queryParameters } from 'src/shared/pagination';
 import { Model } from '@prisma/client';
 
 @Injectable()
@@ -156,5 +155,35 @@ export class AiService {
       console.error('Error checking model status:', error);
       throw new InternalServerErrorException('Failed to check model status');
     }
+  }
+
+  public async handleFalAiImageGenerateWebhook(body: FalAiWebHookResponse) {
+    const requestId = body.request_id;
+    if (body.status === 'ERROR') {
+      this.prismaService.outputImages.updateMany({
+        where: {
+          aiRequestId: requestId,
+        },
+        data: {
+          status: 'Failed',
+          imageUrl: body.payload.images[0].url,
+        },
+      });
+      throw new HttpException('', 411);
+    }
+
+    await this.prismaService.outputImages.updateMany({
+      where: {
+        aiRequestId: requestId,
+      },
+      data: {
+        status: 'Generated',
+        imageUrl: body.payload.images[0].url,
+      },
+    });
+
+    return {
+      message: 'Webhook received',
+    };
   }
 }

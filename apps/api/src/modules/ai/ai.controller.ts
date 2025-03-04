@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, UsePipes } from '@nestjs/common';
 import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
-import { type Response } from '@repo/common/types';
+import { type FalAiWebHookResponse, type Response } from '@repo/common/types';
 import {
   type GenerateImageInput,
   type TrainModelInput,
@@ -35,5 +35,11 @@ export class AiController {
     @Param('modelId') modelId: string
   ) {
     return this.aiService.getModelStatus({ modelId, userId: '' });
+  }
+
+  // Webhooks
+  @Post('/fal-ai/webhook/image')
+  handleFalAiImageGenerateWebhook(@Body() body: FalAiWebHookResponse) {
+    return this.aiService.handleFalAiImageGenerateWebhook(body)
   }
 }

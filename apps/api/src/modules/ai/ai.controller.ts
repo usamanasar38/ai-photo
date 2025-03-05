@@ -8,6 +8,7 @@ import {
 import { AiService } from './ai.service';
 import { ZodValidationPipe } from '../../pipes/zod-validation-pipe';
 import { Model } from '@prisma/client';
+import { Public } from '../../decorators/public.decorator';
 
 @Controller('ai')
 export class AiController {
@@ -38,11 +39,14 @@ export class AiController {
   }
 
   // Webhooks
-  @Post('/fal-ai/webhook/image')
+  @Public()
+  @Post('/webhook/fal-ai/train')
   handleFalAiImageTrainWebhook(@Body() body: FalAiWebHookResponse) {
     return this.aiService.handleFalAiImageTrainWebhook(body)
   }
-  @Post('/fal-ai/webhook/image')
+
+  @Public()
+  @Post('/webhook/fal-ai/image')
   handleFalAiImageGenerateWebhook(@Body() body: FalAiWebHookResponse) {
     return this.aiService.handleFalAiImageGenerateWebhook(body)
   }

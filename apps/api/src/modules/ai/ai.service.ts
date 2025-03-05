@@ -85,7 +85,7 @@ export class AiService {
     // check if the user has enough credits
     const credits = await this.prismaService.userCredit.findUnique({
       where: {
-        userId: userId,
+        userId,
       },
     });
 

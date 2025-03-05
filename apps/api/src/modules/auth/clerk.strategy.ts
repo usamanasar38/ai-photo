@@ -7,6 +7,17 @@ import { Request } from 'express';
 import { ClerkClient } from '@clerk/backend';
 import { CLERK_CLIENT } from './clerk-client.provider';
 
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+      user?: {
+        email: string;
+      };
+    }
+  }
+}
+
 @Injectable()
 export class ClerkStrategy extends PassportStrategy(Strategy, 'clerk') {
   constructor(

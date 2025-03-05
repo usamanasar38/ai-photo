@@ -7,7 +7,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.setGlobalPrefix('api');
-  await app.listen(process.env.PORT ?? 3000);
+  const PORT = process.env.PORT ?? 3000;
+  await app.listen(PORT);
+  console.log('server running on port ', PORT);
 }
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 bootstrap();

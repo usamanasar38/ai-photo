@@ -9,7 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BACKEND_URL, UPLOAD_URL } from "@/app/config";
+import { BACKEND_BASE_URL, UPLOAD_URL } from "@/app/config";
 import { useState, useCallback } from "react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -50,7 +50,7 @@ export function UploadModal({
 
     try {
       const zip = new JSZip();
-      const res = await axios.get(`${BACKEND_URL}/pre-signed-url`);
+      const res = await axios.get(`${BACKEND_BASE_URL}/pre-signed-url`);
       const url = res.data.url;
       const key = res.data.key;
 

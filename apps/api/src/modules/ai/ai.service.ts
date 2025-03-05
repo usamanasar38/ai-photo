@@ -9,9 +9,14 @@ import { FalAIModel } from './models/fal-ai.model';
 import {
   type TrainModelInput,
   type GenerateImageInput,
+  type GenerateImagesFromPackInput,
 } from '@repo/common/inferred-types';
 import { PrismaService } from '../prisma/prisma.service';
-import { type ModelStatusResponse, type FalAiWebHookResponse, type Response } from '@repo/common/types';
+import {
+  type ModelStatusResponse,
+  type FalAiWebHookResponse,
+  type Response,
+} from '@repo/common/types';
 import { IMAGE_GEN_CREDITS, TRAIN_MODEL_CREDITS } from '../../shared/constants';
 import { Model } from '@prisma/client';
 import { MODEL_STATUS } from '@repo/common/constants';
@@ -23,27 +28,27 @@ export class AiService {
   constructor(private prismaService: PrismaService) {}
 
   public async trainModel({
-    body,
+    payload,
     userId,
   }: {
-    body: TrainModelInput;
+    payload: TrainModelInput;
     userId: string;
   }): Promise<Response<string>> {
     const { requestId } = await this.falAiModel.trainModel(
-      body.zipUrl,
-      body.name,
+      payload.zipUrl,
+      payload.name,
     );
 
     const modelCreated = await this.prismaService.model.create({
       data: {
-        name: body.name,
-        type: body.type,
-        age: body.age,
-        ethnicity: body.ethnicity,
-        eyeColor: body.eyeColor,
-        bald: body.bald,
+        name: payload.name,
+        type: payload.type,
+        age: payload.age,
+        ethnicity: payload.ethnicity,
+        eyeColor: payload.eyeColor,
+        bald: payload.bald,
         userId: userId,
-        zipUrl: body.zipUrl,
+        zipUrl: payload.zipUrl,
         aiRequestId: requestId,
       },
     });
@@ -66,15 +71,15 @@ export class AiService {
   }
 
   public async generateImage({
-    body,
+    payload,
     userId,
   }: {
-    body: GenerateImageInput;
+    payload: GenerateImageInput;
     userId: string;
   }): Promise<Response<string>> {
     const model = await this.prismaService.model.findUnique({
       where: {
-        id: body.modelId,
+        id: payload.modelId,
       },
     });
 
@@ -94,15 +99,15 @@ export class AiService {
     }
 
     const { requestId } = await this.falAiModel.generateImage(
-      body.prompt,
+      payload.prompt,
       model.tensorPath,
     );
 
     const data = await this.prismaService.outputImages.create({
       data: {
-        prompt: body.prompt,
+        prompt: payload.prompt,
         userId: userId,
-        modelId: body.modelId,
+        modelId: payload.modelId,
         imageUrl: '',
         aiRequestId: requestId,
       },
@@ -156,11 +161,13 @@ export class AiService {
     }
   }
 
-  public async handleFalAiImageTrainWebhook(body: FalAiWebHookResponse): Promise<{
-    message: string,
+  public async handleFalAiImageTrainWebhook(
+    payload: FalAiWebHookResponse,
+  ): Promise<{
+    message: string;
   }> {
     try {
-      const requestId = body.request_id as string;
+      const requestId = payload.request_id as string;
 
       // First find the model to get the userId
       const model = await this.prismaService.model.findFirst({
@@ -231,16 +238,16 @@ export class AiService {
     }
   }
 
-  public async handleFalAiImageGenerateWebhook(body: FalAiWebHookResponse) {
-    const requestId = body.request_id;
-    if (body.status === 'ERROR') {
+  public async handleFalAiImageGenerateWebhook(payload: FalAiWebHookResponse) {
+    const requestId = payload.request_id;
+    if (payload.status === 'ERROR') {
       this.prismaService.outputImages.updateMany({
         where: {
           aiRequestId: requestId,
         },
         data: {
           status: 'Failed',
-          imageUrl: body.payload.images[0].url,
+          imageUrl: payload.payload.images[0].url,
         },
       });
       throw new HttpException('', 411);
@@ -252,7 +259,7 @@ export class AiService {
       },
       data: {
         status: 'Generated',
-        imageUrl: body.payload.images[0].url,
+        imageUrl: payload.payload.images[0].url,
       },
     });
 

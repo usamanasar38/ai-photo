@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Param, Post, UsePipes } from '@nestjs/common';
-import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
+import { GenerateImage, GenerateImagesFromPack, TrainModel } from '@repo/common/zod.schema';
 import { type FalAiWebHookResponse, type Response } from '@repo/common/types';
 import {
+  GenerateImagesFromPackInput,
   type GenerateImageInput,
   type TrainModelInput,
 } from '@repo/common/inferred-types';
@@ -9,6 +10,8 @@ import { AiService } from './ai.service';
 import { ZodValidationPipe } from '../../pipes/zod-validation-pipe';
 import { Model } from '@prisma/client';
 import { Public } from '../../decorators/public.decorator';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import { User } from '@clerk/backend';
 
 @Controller('ai')
 export class AiController {
@@ -16,8 +19,8 @@ export class AiController {
 
   @Post('train')
   @UsePipes(new ZodValidationPipe(TrainModel))
-  trainModel(@Body() body: TrainModelInput): Promise<Response<string>> {
-    return this.aiService.trainModel({ body, userId: '' });
+  trainModel(@CurrentUser() user: User, @Body() payload: TrainModelInput): Promise<Response<string>> {
+    return this.aiService.trainModel({ payload, userId: user.id });
   }
 
   @Get('models')
@@ -27,27 +30,28 @@ export class AiController {
 
   @Post('generate')
   @UsePipes(new ZodValidationPipe(GenerateImage))
-  generateImage(@Body() body: GenerateImageInput) {
-    return this.aiService.generateImage({ body, userId: '' });
+  generateImage(@CurrentUser() user: User, @Body() payload: GenerateImageInput) {
+    return this.aiService.generateImage({ payload, userId: user.id });
   }
 
   @Get('/model/status/:modelId')
   getModelStatus(
+    @CurrentUser() user: User,
     @Param('modelId') modelId: string
   ) {
-    return this.aiService.getModelStatus({ modelId, userId: '' });
+    return this.aiService.getModelStatus({ modelId, userId: user.id });
   }
 
   // Webhooks
   @Public()
   @Post('/webhook/fal-ai/train')
-  handleFalAiImageTrainWebhook(@Body() body: FalAiWebHookResponse) {
-    return this.aiService.handleFalAiImageTrainWebhook(body)
+  handleFalAiImageTrainWebhook(@Body() payload: FalAiWebHookResponse) {
+    return this.aiService.handleFalAiImageTrainWebhook(payload)
   }
 
   @Public()
   @Post('/webhook/fal-ai/image')
-  handleFalAiImageGenerateWebhook(@Body() body: FalAiWebHookResponse) {
-    return this.aiService.handleFalAiImageGenerateWebhook(body)
+  handleFalAiImageGenerateWebhook(@Body() payload: FalAiWebHookResponse) {
+    return this.aiService.handleFalAiImageGenerateWebhook(payload)
   }
 }

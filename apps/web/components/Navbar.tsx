@@ -38,9 +38,9 @@ export function Navbar() {
             {/* Auth & Pricing */}
             <div className="flex items-center md:gap-4 gap-2">
               <SignedIn>
-                {/* Dashboard */}
               </SignedIn>
               <SignedOut>
+                {/* Pricing */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

@@ -25,7 +25,7 @@ import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { Brain, X } from "lucide-react";
-import { BACKEND_URL } from "@/app/config";
+import { BACKEND_BASE_URL } from "@/app/config";
 import {
   GENDER_TYPE_ARRAY,
   ETHNICITY_ARRAY,
@@ -64,7 +64,7 @@ export function Train() {
     try {
       const token = await getToken();
       setModelTraining(true);
-      await axios.post(`${BACKEND_URL}/ai/training`, input, {
+      await axios.post(`${BACKEND_BASE_URL}/ai/train`, input, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success(

@@ -1,6 +1,6 @@
 "use client";
 import { useAuth } from "@clerk/nextjs";
-import { BACKEND_URL } from "@/app/config";
+import { BACKEND_BASE_URL } from "@/app/config";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { ImageCard, ImageCardSkeleton } from "./ImageCard";
@@ -53,7 +53,7 @@ export function Camera() {
   const fetchImages = async () => {
     try {
       const token = await getToken();
-      const response = await axios.get(`${BACKEND_URL}/image/bulk`, {
+      const response = await axios.get(`${BACKEND_BASE_URL}/image/bulk`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setImages(response.data.images);

@@ -11,15 +11,17 @@ export class FileService {
   private endpoint: string;
 
   constructor(private readonly configService: ConfigService) {
+    const S3_REGION = this.configService.get('S3_REGION');
     const S3_ENDPOINT = this.configService.get('S3_ENDPOINT');
     this.bucketName = this.configService.get('S3_BUCKET_NAME');
 
-    if (!S3_ENDPOINT) {
-      throw new Error('S3_ENDPOINT not found in environment variables');
+    if (!S3_ENDPOINT || !S3_REGION) {
+      throw new Error('S3_ENDPOINT or S3_REGION not found in environment variables');
     }
     this.endpoint = S3_ENDPOINT;
 
     this.client = new S3Client({
+      region: S3_REGION,
       endpoint: S3_ENDPOINT,
       credentials: {
         accessKeyId: this.configService.get('S3_ACCESS_KEY')!,

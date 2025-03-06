@@ -3,6 +3,7 @@ import { Controller, Get } from '@nestjs/common';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { ImagesService } from './images.service';
 import { FileService } from '../common/file.service';
+import { Public } from '../../decorators/public.decorator';
 
 @Controller('files')
 export class FileController {
@@ -14,8 +15,10 @@ export class FileController {
         return this.imagesService.getAiGeneratedImages({ userId: user.id });
     }
 
+    @Public()
     @Get('/presigned-url')
-    getPresignedUrl() {
-        return { data: this.fileService.getPresignedSignedUrl() };
+    async getPresignedUrl() {
+        const data = await this.fileService.getPresignedSignedUrl();
+        return { data };
     }
 }

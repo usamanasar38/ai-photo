@@ -53,3 +53,9 @@ export const MODEL_STATUS = {
   GENERATED: "Generated",
   FAILED: "Failed",
 } as const;
+
+export const TRANSACTION_STATUS = {
+  PENDING: "PENDING",
+  SUCCESS: "SUCCESS",
+  FAILED: "FAILED",
+} as const;

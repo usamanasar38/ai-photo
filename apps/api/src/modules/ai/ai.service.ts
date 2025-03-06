@@ -11,7 +11,7 @@ import {
   type GenerateImageInput,
   type GenerateImagesFromPackInput,
 } from '@repo/common/inferred-types';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../common/prisma.service';
 import {
   type ModelStatusResponse,
   type FalAiWebHookResponse,
@@ -30,12 +30,14 @@ export class AiService {
   public async trainModel({
     payload,
     userId,
+    zipUrl,
   }: {
     payload: TrainModelInput;
     userId: string;
+    zipUrl: string;
   }): Promise<Response<string>> {
     const { requestId } = await this.falAiModel.trainModel(
-      payload.zipUrl,
+      zipUrl,
       payload.name,
     );
 
@@ -48,7 +50,7 @@ export class AiService {
         eyeColor: payload.eyeColor,
         bald: payload.bald,
         userId: userId,
-        zipUrl: payload.zipUrl,
+        zipUrl: zipUrl,
         aiRequestId: requestId,
       },
     });

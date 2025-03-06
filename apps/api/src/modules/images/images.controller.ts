@@ -7,6 +7,7 @@ import { ImagesService } from './images.service';
 export class ImagesController {
 
     constructor(private readonly imagesService: ImagesService) {}
+
     @Get()
     getAiGeneratedImages(@CurrentUser() user: User) {
         return this.imagesService.getAiGeneratedImages({ userId: user.id });

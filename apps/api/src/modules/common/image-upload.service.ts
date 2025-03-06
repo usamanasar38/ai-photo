@@ -5,12 +5,13 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'node:crypto';
 
 @Injectable()
-export class ImagesService {
+export class ImageUploadService {
   private client: S3Client;
-  private bucketName = this.configService.get('S3_BUCKET_NAME');
+  private bucketName: string | undefined;
 
   constructor(private readonly configService: ConfigService) {
     const s3_region = this.configService.get('S3_REGION');
+    this.bucketName = this.configService.get('S3_BUCKET_NAME');
 
     if (!s3_region) {
       throw new Error('S3_REGION not found in environment variables');
@@ -32,7 +33,7 @@ export class ImagesService {
     isPublic = true,
   }: {
     file: Express.Multer.File;
-    isPublic: boolean;
+    isPublic?: boolean;
   }) {
     try {
       const key = `${randomUUID()}`;
@@ -48,7 +49,7 @@ export class ImagesService {
         },
       });
 
-      const uploadResult = await this.client.send(command);
+      await this.client.send(command);
 
       return {
         url: isPublic

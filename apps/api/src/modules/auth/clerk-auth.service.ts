@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Webhook, WebhookRequiredHeaders } from 'svix';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../common/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { UserWebhookEvent, WebhookEvent } from '@clerk/backend';
 

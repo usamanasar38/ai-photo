@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Param, Post, UsePipes } from '@nestjs/common';
-import { GenerateImage, GenerateImagesFromPack, TrainModel } from '@repo/common/zod.schema';
+import { Body, Controller, FileTypeValidator, Get, Param, ParseFilePipe, Post, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
+import { GenerateImage, TrainModel } from '@repo/common/zod.schema';
 import { type FalAiWebHookResponse, type Response } from '@repo/common/types';
 import {
-  GenerateImagesFromPackInput,
   type GenerateImageInput,
   type TrainModelInput,
 } from '@repo/common/inferred-types';
@@ -12,15 +11,23 @@ import { Model } from '@prisma/client';
 import { Public } from '../../decorators/public.decorator';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { User } from '@clerk/backend';
+import { ImageUploadService } from '../common/image-upload.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('ai')
 export class AiController {
-  constructor(private aiService: AiService) {}
+  constructor(private readonly aiService: AiService, private readonly imageUploadService: ImageUploadService) {}
 
   @Post('train')
-  @UsePipes(new ZodValidationPipe(TrainModel))
-  trainModel(@CurrentUser() user: User, @Body() payload: TrainModelInput): Promise<Response<string>> {
-    return this.aiService.trainModel({ payload, userId: user.id });
+  @UseInterceptors(FileInterceptor('zipFile'))
+  async trainModel(@CurrentUser() user: User, @Body() body: TrainModelInput, @UploadedFile(new ParseFilePipe({
+    validators: [
+      new FileTypeValidator({ fileType: 'application/zip' }),
+    ],
+  }),) file: Express.Multer.File,): Promise<Response<string>> {
+    const payload = new ZodValidationPipe(TrainModel).transform(body) as TrainModelInput;
+    const uploadedFile = await this.imageUploadService.uploadSingleFile({ file });
+    return this.aiService.trainModel({ payload, userId: user.id, zipUrl: uploadedFile.url });
   }
 
   @Get('models')

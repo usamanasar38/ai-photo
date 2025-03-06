@@ -12,7 +12,7 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     // dark mode
-    <ClerkProvider appearance={{ layout: { logoPlacement: "inside" }, baseTheme: dark }}>
+    <ClerkProvider afterSignOutUrl="/" appearance={{ layout: { logoPlacement: "inside" }, baseTheme: dark }}>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"

@@ -38,6 +38,23 @@ export function Navbar() {
             {/* Auth & Pricing */}
             <div className="flex items-center md:gap-4 gap-2">
               <SignedIn>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-800 transition"
+                  asChild
+                >
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox:
+                        "h-8 w-8 rounded-full ring-2 ring-primary/10 transition-all hover:ring-primary/30",
+                      userButtonPopover: "right-0 mt-2",
+                    },
+                  }}
+                />
               </SignedIn>
               <SignedOut>
                 {/* Pricing */}

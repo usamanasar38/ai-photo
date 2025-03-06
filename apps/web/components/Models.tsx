@@ -31,13 +31,13 @@ export function SelectModel({
   useEffect(() => {
     (async () => {
       const token = await getToken();
-      const response = await axios.get(`${BACKEND_BASE_URL}/models`, {
+      const response = await axios.get(`${BACKEND_BASE_URL}/ai/models`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setModels(response.data.models);
-      setSelectedModel(response.data.models[0]?.id);
+      setModels(response.data.data);
+      setSelectedModel(response.data.data[0]?.id);
       setModalLoading(false);
     })();
   }, []);

@@ -9,7 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BACKEND_BASE_URL, UPLOAD_URL } from "@/app/config";
+import { BACKEND_BASE_URL, CLOUDFLARE_URL } from "@/app/config";
 import { useState, useCallback } from "react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -50,9 +50,9 @@ export function UploadModal({
 
     try {
       const zip = new JSZip();
-      const res = await axios.get(`${BACKEND_BASE_URL}/pre-signed-url`);
-      const url = res.data.url;
-      const key = res.data.key;
+      const res = await axios.get(`${BACKEND_BASE_URL}/files/presigned-url`);
+      const url = res.data.data.url;
+      const key = res.data.data.key;
 
       const fileNames: string[] = [];
       for (const file of files) {
@@ -75,7 +75,7 @@ export function UploadModal({
         },
       });
 
-      onUploadDone(`${UPLOAD_URL}/${key}`, fileNames);
+      onUploadDone(`${CLOUDFLARE_URL}/${key}`, fileNames);
     } catch (error) {
       console.error("Upload failed:", error);
     } finally {

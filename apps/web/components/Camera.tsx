@@ -53,10 +53,10 @@ export function Camera() {
   const fetchImages = async () => {
     try {
       const token = await getToken();
-      const response = await axios.get(`${BACKEND_BASE_URL}/image/bulk`, {
+      const response = await axios.get(`${BACKEND_BASE_URL}/files/images`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setImages(response.data.images);
+      setImages(response.data.data);
       setImagesLoading(false);
     } catch (error) {
       console.error("Failed to fetch images:", error);

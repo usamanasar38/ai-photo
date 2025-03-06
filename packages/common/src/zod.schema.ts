@@ -16,6 +16,7 @@ export const TrainModel = z.object({
   bald: z.boolean({
     coerce: true,
   }),
+  zipUrl: z.string().url(),
 });
 
 export const GenerateImage = z.object({

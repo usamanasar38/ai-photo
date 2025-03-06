@@ -11,23 +11,15 @@ import { Model } from '@prisma/client';
 import { Public } from '../../decorators/public.decorator';
 import { CurrentUser } from '../../decorators/current-user.decorator';
 import { User } from '@clerk/backend';
-import { ImageUploadService } from '../common/image-upload.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('ai')
 export class AiController {
-  constructor(private readonly aiService: AiService, private readonly imageUploadService: ImageUploadService) {}
+  constructor(private readonly aiService: AiService) {}
 
   @Post('train')
-  @UseInterceptors(FileInterceptor('zipFile'))
-  async trainModel(@CurrentUser() user: User, @Body() body: TrainModelInput, @UploadedFile(new ParseFilePipe({
-    validators: [
-      new FileTypeValidator({ fileType: 'application/zip' }),
-    ],
-  }),) file: Express.Multer.File,): Promise<Response<string>> {
-    const payload = new ZodValidationPipe(TrainModel).transform(body) as TrainModelInput;
-    const uploadedFile = await this.imageUploadService.uploadSingleFile({ file });
-    return this.aiService.trainModel({ payload, userId: user.id, zipUrl: uploadedFile.url });
+  @UsePipes(new ZodValidationPipe(TrainModel))
+  async trainModel(@CurrentUser() user: User, @Body() payload: TrainModelInput): Promise<Response<string>> {
+    return this.aiService.trainModel({ payload, userId: user.id });
   }
 
   @Get('models')

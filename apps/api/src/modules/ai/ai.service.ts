@@ -30,14 +30,12 @@ export class AiService {
   public async trainModel({
     payload,
     userId,
-    zipUrl,
   }: {
     payload: TrainModelInput;
     userId: string;
-    zipUrl: string;
   }): Promise<Response<string>> {
     const { requestId } = await this.falAiModel.trainModel(
-      zipUrl,
+      payload.zipUrl,
       payload.name,
     );
 
@@ -50,7 +48,7 @@ export class AiService {
         eyeColor: payload.eyeColor,
         bald: payload.bald,
         userId: userId,
-        zipUrl: zipUrl,
+        zipUrl: payload.zipUrl,
         aiRequestId: requestId,
       },
     });
